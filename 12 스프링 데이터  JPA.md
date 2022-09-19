@@ -99,4 +99,6 @@ Member findByUsername(String username);
 - Page 인터페이스도 다양한 메소드 제공해줌 ( getSize, isFirstPage 등)
 
 ## 12.4.8 힌트
-- `@
+- `@QueryHints` 사용, SQL 힌트는 아님
+
+## 12.4.9 Lock
