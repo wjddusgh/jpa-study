@@ -102,3 +102,40 @@ Member findByUsername(String username);
 - `@QueryHints` 사용, SQL 힌트는 아님
 
 ## 12.4.9 Lock
+- 쿼리시 락을 걸려면 @Lock 사용, LockModeType 속성으로 락 단계 설정
+
+# 12.5 명세
+
+- JpaSpecificationExecutor 인터페이스 상속을 통해 사용
+- 명세 정의는 `toPredicate()` 메소드 사용
+
+# 12.6 사용자 정의 레포지토리 구현
+
+- 전체를 구현하면 머리아프니 필요한것만 개발자가 구현시킬수 있게끔 할 수 있다
+- 사용자 정의 인터페이스 구현 클래스는 이름 뒤에 `Impl` 를 붙여야 한다 ( postfix는 변경 가능)
+
+# 12.7 Web 확장
+- 스프링 MVC 에서 사용가능한 편리한 기능 제공
+
+## 12.7.1 설정
+- SpringDataWebConfiguration 빈으로 등록하는 법
+- @EnableSpringDataWebSupport 사용
+
+## 12.7.2 도메인 클래스 컨버터 기능
+- pk나 다른 필드로 받아도 컨버터가 엔티티로 찾아와줘서 컨트롤러에 전달
+
+## 12.7.3 페이징과 정렬 기능
+- Pageable 을 파라미터로 받아 정렬, 페이징 사용 가능
+
+# 12.10 스프링 데이터 JPA와 QueryDSL 통합
+- 스프링 데이터 JPA는 두가지 방법으로 QueryDSL 지원
+  - QueryDslPredicateExecutor
+  - QueryDslRepositorySupport
+
+## 12.10.1 QueryDslPredicateExecutor 사용
+- 단순히 이거 상속받으면 된다
+- 하지만 join, fetch 사용 불가
+
+## 12.10.2 QueryDslRepositorySupport 사용
+- 상속받고 사용자 정의 레포지토리에서 구현을 하면 된다
+
