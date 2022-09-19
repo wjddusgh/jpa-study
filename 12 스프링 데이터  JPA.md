@@ -78,4 +78,25 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 @Query("select m from Member m where m.username = ?1")
 Member findByUsername(String username);
 ```
-- spdl
+- Native SQL 을 사용하고 싶을땐 @Query 의 속성으로 `nativeQuery = true` 를 설정하면 된다 ( 네이티브는 파라미터가 ?1이아닌 ?0부터 시작)
+
+## 12.4.4 파라미터 바인딩
+- 위치기반, 이름기반 파라미터 바인딩 모두 지원
+- 코드 가독성과 유지보수를 위해 이름기반 바인딩 추천
+
+## 12.4.5 벌크성 수정 쿼리
+- 수정이니까 `@Modifying` 애노테이션을 메소드에 붙이면 된다
+- 벌크성 쿼리를 실행하고 나서 영속성 컨텍스트를 초기화하고 싶으면 `clearAutomatically = true` 속성을 설정하면 된다
+
+## 12.4.6 반환 타입
+- 결과가 단건이면 반환타입 지정, 한건 이상이면 컬렉션 인터페이스 사용
+- 단건 메소드 호출시 내부에서 `Query.getSingleResult()` 메소드 호출, 예외 발생시 무시하고 Null 반환
+
+## 12.4.7 페이징과 정렬
+- Sort, Pageable 제공
+- Pageable 사용시 Page<> 인터페이스로 반환 가능
+  - count 쿼리를 사용 가능해짐 
+- Page 인터페이스도 다양한 메소드 제공해줌 ( getSize, isFirstPage 등)
+
+## 12.4.8 힌트
+- `@
