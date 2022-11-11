@@ -6,12 +6,12 @@ class StudyTests {
   
     @Autowired private val repository : Repository;
   
-    @Before //junit5 는 @BeforeEach
+    @BeforeClass  //junit5 는 @BeforeAll
     fun createData() {
       (0..4).forEach { repository.save(Data(it, "good")) }
     }
     
-    @BeforeClass  //junit5 는 @BeforeAll
+    @Before //junit5 는 @BeforeEach
     fun deleteData() {
       repository.deleteAll()
     }
