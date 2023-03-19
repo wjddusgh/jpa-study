@@ -50,3 +50,71 @@ stream
   - Mono -> Flux -> Mono 변환 같은경우 스마트 최적화 해줌
 
 ### RxJava 2의 리액티브 타입
+- Observable : non-nullm, 배압 x, 낡은 타입
+- Flowable : Flux 같은거, Publisher 구현
+- Single : Publisher 상속 x, Mono보단 CompletableFuture 의미 잘 표현, 구독시에만 처리 시작
+- Maybe : Mono 느낌
+- Completable : onNext() 못보내고, 완료,실패 신호만 보내기 가능
+
+  ### Flux와 Mono 시퀀스 만들기
+  - 팩토리 메서드 패턴 제공 
+  ```java
+  Flux<String> s1 = Flux.just("hello", "world");
+  Flux<String> s2 = Flux.fromArray(new Integer[]{1,2,3});
+  ```
+  - Mono는 주로 nullable, Optional 타입과 함께 사용
+    - HTTP 요청이나 DB 쿼리 같은거 래핑해서 사용하면 좋다
+  - empty() 메소드로 빈 인스턴스 생성 가능
+
+  ### 리액티브 스트림 구독하기
+  - subscribe() 메서드 사용가능
+  - Disposable 인터페이스의 인스턴스 반환(구독 취소하는데 사용가능 `disposable.dispose()`)
+  ```java
+  Flux.just("a","b","c")
+      .subscribe(
+        data -> log.info("onNext: {}", data),
+        err -> {},
+        () -> log.info("fin"));
+  //////////
+  // onNext: a
+  // onNext: b
+  // onNext: c
+  // fin
+  ```
+  - 구독쪽에서 직접 수요, 요청을 제어도 가능(subscription 사용)
+  
+  ### 사용자 정의 Subscriber 구현하기
+  - 직접 커스텀 구현도 가능
+  
+  ### 연산자를 이용해 리액티브 시퀀스 변환하기
+  - 도구 분류
+    - 기존 시퀀스 변환
+    - 시퀀스 처리 과정을 살펴보는 ㅔ서드
+    - Flux 시퀀스를 분할 또는 결합
+    - 시간을 다루는 작업
+    - 데이터를 동기적으로 반환
+  
+  ### 리액티브 시퀀스의 원소 매핑하기
+  - map 연산자 제공
+  ### 리액티브 시퀀스 필터링하기
+  - filter 제공
+  - ignoreElements : Mono<T> 반환하고 어떤 원소도 다 필터링해버림. 겨로가 시퀀스는 원본 시퀀스가 종료된 후에 종료(스트림의 완료가 궁금한경우 쓰는듯)
+  - take() 연산자로 유입되는 원소 개수 제한 가능
+  - takeLast는 스트림 마지막 원소만 반환
+  - takeUntil() : 조건 만족시까지 전달
+  - elementAt() : n번째 원소 가져옴
+  - single : 단일 항목 내보내고, 빈 소스면 익셉션 발생, 복수의 반환갯수도 익셉션 발생
+  - skip() : 양, 시간 기준해서 원소 가져오거나 무시할수 있음
+  - takeUntilOther() 로 특정 스트림에서 메시지가 도착할 때까지 필터링
+  
+  ### 리액티브 시퀀스 수집하기
+  - collectList(), collectSortedList() 등
+  - Collection 타입으로도 변환 가능함
+  
+  ### 스트림의 원소 줄이기
+  - hasElement :특정 원소의 존재 유무
+  - 근데 필터링도 줄이는거 아닌가?
+  
+  ### 스트림 조합
+  - concat, merge(합쳐진 소스는 별개로 동시에 구독됨), zip, combineLatest
+  
