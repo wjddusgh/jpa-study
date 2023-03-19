@@ -42,4 +42,11 @@ stream
   
 ### Mono
 - 최대 하나의 요소를 생성할 수 있는 스트림
-  - 
+- 0 또는 1이기에 버퍼 중복, 값비싼 동기화 생략 가능
+- 클라이언트에게 작업이 완료됐음을 알릴 때 사용 가능(Mono<void> 반환 후 처리 완료시 onComplete(), 실패시 onError(), 데이터는 안보내는거)
+- Flux와 변환 가능
+  - `Flux <T>.collectList()` --> `Mono<List<T>>` 반환
+  - `Mono<t>.flux()` --> `Flux<T>` 반환
+  - Mono -> Flux -> Mono 변환 같은경우 스마트 최적화 해줌
+
+### RxJava 2의 리액티브 타입
