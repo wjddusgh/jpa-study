@@ -227,3 +227,38 @@ public void handlingErrors() throws InterruptedException {
 - 제일 중요한건 ThreadLocal 대체(비동기에선 이거 못씀)
   - 비동기식에선 하나의 스레드에서 여러 요청을 처리할 수 있기 때문에 다른 스레드의 변수 공유할 수도 있다. 이경우 곤란
   - Reactor Context는 불변객체라 괜찮나봄, subscriberContext 
+    - 각 Sub가 별도의 Context를 가져야 하는 경우(구독 단계에서만 가능)에는 유용하지 않을 수 있음
+- 잘은 모르겠는데 결국, 매번 연산마다 새로운 불변객체 Context를 만들고, 이러한 과정을 하는게 CoreSubscriber
+  - CoreSubscriber의 구현 안에서 subscriberContext가 Context를 수정해서 새로 만들고 넘기는듯, 이래서 스트림의 지점마다 객체가 다를 수 있다
+  - [참고](https://www.4te.co.kr/944)
+```java
+ public void showcaseContext() {    //진짜 모르겠음
+        printCurrentContext("top")
+                .subscriberContext(Context.of("top", "context"))
+                .flatMap(__ -> printCurrentContext("middle"))
+                .subscriberContext(Context.of("middle", "context"))
+                .flatMap(__ -> printCurrentContext("bottom"))
+                .subscriberContext(Context.of("bottom", "context"))
+                .flatMap(__ -> printCurrentContext("initial"))
+                .block();
+    }
+
+    void print(String id, Context context) {
+        System.out.println(id + " {");
+        System.out.print("  ");
+        System.out.println(context);
+        System.out.println("}");
+        System.out.println();
+    }
+
+    Mono<Context> printCurrentContext(String id) {
+        return Mono
+                .subscriberContext()
+                .doOnNext(context -> print(id, context));
+    }
+```
+
+## 프로젝트 리액터의 내부 구조
+- 개선사항 : 리액티브 스트림 수명 주기, 연산자 융합
+
+## 매크로 퓨전
