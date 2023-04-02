@@ -261,4 +261,38 @@ public void handlingErrors() throws InterruptedException {
 ## 프로젝트 리액터의 내부 구조
 - 개선사항 : 리액티브 스트림 수명 주기, 연산자 융합
 
-## 매크로 퓨전
+### 매크로 퓨전
+- 조립 단계에서 발생, 연산자를 다른 연산자로 교체하는 것
+- ex. Pub가 Callable, ScalarCallable 인터페이스 구현시 최적화된 연산자로 교체
+```java
+Flux.just(1)      //원소 생성
+  .publishOn(...) //생성 직후에 다른 워커로 실행 옮김 -> 큐 만들어 할당, volatile 읽기쓰기 발생 -> 느림
+  .map(...)
+```
+- 예시의 경우 한 원소의 공급이므로 ScalarCallable.call() 로 표현 가능해서 publishOn -> subscribeOn으로 치환 가능하다고 함
+- 내부 구조에 있는거라 컴파일시 자동으로 해주나봄, 단일 요소 스트림 실행 최적화
+
+### 마이크로 퓨전
+- 매크로 퓨전보다 좀 더 복잡한 최적화
+- 런타임 최적화 및 공유 리소스 재사용 과 관련있음
+- - 같은 큐를 사용하게 하는게 포인트라고함
+```java
+Flux.from(factory)
+  .filter(inspectionDepartment)
+  .subscribe(store);
+```
+- filter가 걸러낸 양 만큼 원소를 `request()`로 다시 요청해야함
+  - request()는 추가적인 CPU 부하 발생
+- 조건부 연산자가 전체 성능에 지대한 영향 미칠 수 있다는 뜻
+- `ConditionalSubscriber`
+  - 소스 측에서 조건을 바로 확인하고 추가적인 request 없이 필요한 개수를 전송 가능
+
+```java
+Flux.just(1, 2, 3)
+  .publishOn(Schedulers.parallel())
+  .concatMap(i -> Flux.range(0, i)    // 순서를 보장하는 map(flatMap()은 보장 안된다고함), 그래서 내부적으로 큐가 있음
+                    .publishOn(Schedulers.prallel()))
+  .subscribe();
+```
+- `concatMap` : 순서 보장 방법이 큐다. 순서를 보장하는건 `flatMapSequential` 보다 느리지만, 메모리를 적게 사용한다 
+- 책의 내용은 이해못함
