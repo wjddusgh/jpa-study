@@ -107,11 +107,25 @@ val text: RDD[String] = sc.textFile(inputPath)
 ### Chaining:
 Narrow Transformation은 하나의 스테이지에서 여러 개를 연결(chain) 가능
 
+### 캐싱
+- cache() 호출 시 익스큐터의 메모리에 각 RDD 파티션 보존함
+- 캐싱도 연산 지연이 적용되어 액션 적용 시점에 메모리에 저장됨
+- persist() 사용 시 다양한 저장 레벨을 선택 가능
 
-
-
-
-
-
-
-
+### 직렬화
+- 기본적으로 아무것도 안건들면 자바 직렬화 사용
+- 스파크는 효율적인 크라이오 직렬화 지원
+  - 기본 직렬화보다 더 빠르고, 적은 메모리 사용 
+```scala
+val conf = new SparkConf()
+  .setAppName("MyApp")
+  .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+val sc = new SparkContext(conf)
+```
+## 공유변수
+모든 작업 노드에서 공유되는 변수
+### 브로드캐스트 변수
+- 읽기 전용 변수로, 각 노드에 한번만 단방향으로 전송되며, 나중에 언제든 접근 가능하도록 캐싱됨
+- 맵리듀스의 분산 캐시와 흡사하지만, 스파크는 메모리에 우선적으로 채움
+### 어큐뮬레이터
+- 태스크에서 어큐뮬레이터를 축적하며, 병렬 연산에서 변수의 값을 누적하는데 사용됨
